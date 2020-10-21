@@ -1,0 +1,6 @@
+* peertube.el
+=peertube.el= is an Emacs interface for [[search.joinpeertube.org][PeerTube]].
+
+* TODOs
+- [] Sort result
+- [] Potentially integrate with transmission
