@@ -5,6 +5,14 @@
 (defun peertube--format-account (account)
   "Format ACCOUNT name."
   (propertize (concat (format "%-11s" (seq-take account 11)) "   ")))
+(defun peertube--format-duration (duration)
+  "Formats the DURATION in seconds to [hh:mm:ss]."
+  (let* ((hr (/ (float duration) 3600))
+	 (min (* (- hr (floor hr)) 60))
+	 (sec (* (- min (floor min)) 60)))
+    (cond ((eq (floor hr) 0) (format "%02d:%02d     " min sec))
+	   ((eq (floor min) 0) (format "02%d        " sec))
+	    (t (format "%02d:%02d:%02d  " hr min sec)))))
 ;; Store metadata for PeerTube videos
 (cl-defstruct (peertube-video (:constructor peertube--create-video)
 			  (:copier nil))
