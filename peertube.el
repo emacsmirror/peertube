@@ -9,6 +9,7 @@
 (defun peertube--format-title (title)
   "Format the video TITLE int the *peertube* buffer."
   (propertize (concat (format "%-80s" (seq-take title 80)) "   ")))
+
 (defun peertube--format-duration (duration)
   "Format the DURATION from seconds to hh:mm:ss in the *peertube* buffer."
   (let ((formatted-string (concat (format-seconds "%.2h" duration)
@@ -18,7 +19,30 @@
 				  (format-seconds "%.2s" (mod duration 60))
 				  "  ")))
     (propertize formatted-string)))
+						  
+(defun peertube--format-views (views)
+  "Format the VIEWS in the *peertube* buffer.
+
+Format to thousands (K) or millions (M) if necessary."
+  (let ((formatted-string (cond ((< 1000000 views) (format "%5sM" (/ (round views 100000) (float 10))))
+				((< 1000 views) (format "%5sK" (/ (round views 100) (float 10))))
+				(t (format "%6s" views)))))
+    (propertize (concat "[" formatted-string "]  "))))
+
+(defun peertube--format-tags (tags)
+  "Format the TAGS in the *peertube* buffer."
+  (let ((formatted-string (if (eq (length tags) 0)
+			      (format "")
+			    (format "%s" tags))))
+    (propertize formatted-string)))
+
+(defun peertube--format-date (date)
+  "Format the date in the *peertube* buffer."
+  (let ((formatted-string (concat (seq-take date 10) "  ")))
+    (propertize formatted-string)))
+			  
 (defun peertube-buffer ()
+  "Draw the '*peertube*' buffer and switch to it."
   (interactive)
   (switch-to-buffer "*peertube*")
   (erase-buffer))
