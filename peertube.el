@@ -10,13 +10,14 @@
   "Format the video TITLE int the *peertube* buffer."
   (propertize (concat (format "%-80s" (seq-take title 80)) "   ")))
 (defun peertube--format-duration (duration)
-  "Formats the DURATION in seconds to [hh:mm:ss]."
-  (let* ((hr (/ (float duration) 3600))
-	 (min (* (- hr (floor hr)) 60))
-	 (sec (* (- min (floor min)) 60)))
-    (cond ((eq (floor hr) 0) (format "%02d:%02d     " min sec))
-	   ((eq (floor min) 0) (format "02%d        " sec))
-	    (t (format "%02d:%02d:%02d  " hr min sec)))))
+  "Format the DURATION from seconds to hh:mm:ss in the *peertube* buffer."
+  (let ((formatted-string (concat (format-seconds "%.2h" duration)
+				  ":"
+				  (format-seconds "%.2m" (mod duration 3600))
+				  ":"
+				  (format-seconds "%.2s" (mod duration 60))
+				  "  ")))
+    (propertize formatted-string)))
 (defun peertube-buffer ()
   (interactive)
   (switch-to-buffer "*peertube*")
