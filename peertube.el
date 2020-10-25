@@ -13,6 +13,10 @@
     (cond ((eq (floor hr) 0) (format "%02d:%02d     " min sec))
 	   ((eq (floor min) 0) (format "02%d        " sec))
 	    (t (format "%02d:%02d:%02d  " hr min sec)))))
+(defun peertube-buffer ()
+  (interactive)
+  (switch-to-buffer "*peertube*")
+  (erase-buffer))
 ;; Store metadata for PeerTube videos
 (cl-defstruct (peertube-video (:constructor peertube--create-video)
 			  (:copier nil))
