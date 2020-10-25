@@ -17,6 +17,16 @@
   (interactive)
   (switch-to-buffer "*peertube*")
   (erase-buffer))
+  
+(defun peertube-search (query)
+  "Search PeerTube for QUERY."
+  (interactive "sSearch PeerTube: ")
+  (peertube-buffer)
+  (let ((videos (peertube-query query)))
+    (seq-do (lambda (v)
+	      (peertube--insert-video v))
+	    videos)))
+
 ;; Store metadata for PeerTube videos
 (cl-defstruct (peertube-video (:constructor peertube--create-video)
 			  (:copier nil))
