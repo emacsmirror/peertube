@@ -3,8 +3,12 @@
 
 
 (defun peertube--format-account (account)
-  "Format ACCOUNT name."
+  "Format the ACCOUNT name in the *peertube* buffer."
   (propertize (concat (format "%-11s" (seq-take account 11)) "   ")))
+
+(defun peertube--format-title (title)
+  "Format the video TITLE int the *peertube* buffer."
+  (propertize (concat (format "%-80s" (seq-take title 80)) "   ")))
 (defun peertube--format-duration (duration)
   "Formats the DURATION in seconds to [hh:mm:ss]."
   (let* ((hr (/ (float duration) 3600))
