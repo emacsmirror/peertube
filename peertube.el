@@ -1,6 +1,10 @@
 (require 'json)
 (require 'cl-lib)
 
+
+(defun peertube--format-account (account)
+  "Format ACCOUNT name."
+  (propertize (concat (format "%-11s" (seq-take account 11)) "   ")))
 ;; Store metadata for PeerTube videos
 (cl-defstruct (peertube-video (:constructor peertube--create-video)
 			  (:copier nil))
