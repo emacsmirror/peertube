@@ -1,14 +1,49 @@
+;;; peertube.el --- Query PeerTube videos in Emacs -*- lexical-binding: t; -*-
+
+;; This file is NOT part of Emacs.
+
+;; Copyright (C) 2020  Free Software Foundation, Inc.
+
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU Affero General Public License as published
+;; by the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU Affero General Public License for more details.
+
+;; You should have received a copy of the GNU Affero General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 (require 'json)
 (require 'cl-lib)
 
+;; (defvar peertube-date-format "%Y-%m-%d"
+;;   "Format of the date displayed in the *peertube* buffer.
+;; Defaults to %Y-%m-%d, see `format-time-string' for the full documentation.")
+
+(define-derived-mode peertube-mode tabulated-list-mode "peertube"
+  "Major mode for peertube.")
+
+(defun peertube-quit ()
+  "Close peertube buffer."
+  (interactive)
+  (quit-window))
+  
+(defvar peertube-videos '()
+  "List of videos displayed in the *peertube* buffer.")
+
+(defvar peertube-account-length 15)
 
 (defun peertube--format-account (account)
   "Format the ACCOUNT name in the *peertube* buffer."
-  (propertize (concat (format "%-11s" (seq-take account 11)) "   ")))
+  (propertize account))
 
 (defun peertube--format-title (title)
   "Format the video TITLE int the *peertube* buffer."
-  (propertize (concat (format "%-80s" (seq-take title 80)) "   ")))
+  (propertize title))
 
 (defun peertube--format-duration (duration)
   "Format the DURATION from seconds to hh:mm:ss in the *peertube* buffer."
@@ -27,7 +62,7 @@ Format to thousands (K) or millions (M) if necessary."
   (let ((formatted-string (cond ((< 1000000 views) (format "%5sM" (/ (round views 100000) (float 10))))
 				((< 1000 views) (format "%5sK" (/ (round views 100) (float 10))))
 				(t (format "%6s" views)))))
-    (propertize (concat "[" formatted-string "]  "))))
+    (propertize formatted-string)))
 
 (defun peertube--format-tags (tags)
   "Format the TAGS in the *peertube* buffer."
@@ -37,24 +72,69 @@ Format to thousands (K) or millions (M) if necessary."
     (propertize formatted-string)))
 
 (defun peertube--format-date (date)
-  "Format the date in the *peertube* buffer."
-  (let ((formatted-string (concat (seq-take date 10) "  ")))
-    (propertize formatted-string)))
+  "Format the DATE in the *peertube* buffer."
+  (propertize (seq-take date 10)))
 			  
-(defun peertube-buffer ()
-  "Draw the '*peertube*' buffer and switch to it."
+(defun peertube--insert-entry (video)
+  "Insert VIDEO into the current buffer."
+  (list (peertube-video-url video)
+	(vector (peertube--format-duration (peertube-video-duration video))
+		(peertube--format-title (peertube-video-title video))
+		(peertube--format-account (peertube-video-account video))
+		(peertube--format-date (peertube-video-date video))
+		(peertube--format-views (peertube-video-views video))
+		(peertube--format-tags (peertube-video-tags video)))))
+  
+(defun peertube--draw-buffer ()
+  "Draw buffer with video entries."
   (interactive)
-  (switch-to-buffer "*peertube*")
-  (erase-buffer))
+  (erase-buffer)
+  (setq tabulated-list-format `[("Duration" 10 t)
+				("Title" 50 t)
+				("Account" ,peertube-account-length t)
+				("Date" 10 t)
+				("Views" 6 t)
+				("Tags" 10 nil)])
+  (setq tabulated-list-entries (mapcar 'peertube--insert-entry peertube-videos))
+  (tabulated-list-init-header)
+  (tabulated-list-print))
+  
+(defun peertube--get-current-video ()
+  "Get the currently selected video."
+  (aref peertube-videos (1- (line-number-at-pos))))
+
+;; (defun peertube-download ()
+;;   (interactive)
+;;   (let ((url (peertube-video-url (peertube--get-current-video))))
+;;     ;; https://peertube.dsmouse.net/videos/watch/670b41d7-71bc-4619-ad9e-947136fa6916
+
+(defun peertube-open ()
+  (interactive)
+  (let ((url (peertube-video-url (peertube--get-current-video))))
+    (browse-url url)))
+  
+;; (defun peertube-buffer ()
+;;   "Draw the '*peertube*' buffer and switch to it."
+;;   (interactive)
+;;   (switch-to-buffer "*peertube*")
+;;   (erase-buffer))
   
 (defun peertube-search (query)
   "Search PeerTube for QUERY."
   (interactive "sSearch PeerTube: ")
-  (peertube-buffer)
-  (let ((videos (peertube-query query)))
-    (seq-do (lambda (v)
-	      (peertube--insert-video v))
-	    videos)))
+  ;; (peertube-buffer)
+  (setq peertube-videos (peertube-query query))
+  (peertube--draw-buffer))
+
+
+  ;; (seq-do (lambda (v)
+  ;; 	    (peertube--insert-video v))
+  ;; 	  peertube-videos))
+
+  ;; (let ((videos (peertube-query query)))
+  ;;   (seq-do (lambda (v)
+  ;; 	      (peertube--insert-video v))
+  ;; 	    peertube-videos)))
 
 ;; Store metadata for PeerTube videos
 (cl-defstruct (peertube-video (:constructor peertube--create-video)
@@ -108,3 +188,16 @@ Curl is used to call 'search.joinpeertube.org', the result gets parsed by `json-
     videos))
 
 (provide 'peertube)
+
+;;;###autoload
+(defun peertube ()
+  "Enter peertube."
+  (interactive)
+  (switch-to-buffer "*peertube*")
+  (unless (eq major-mode 'peertube-mode)
+    (peertube-mode))
+  (call-interactively 'peertube-search))
+  ;; (when (seq-empty-p ytel-search-term)
+  ;;   (call-interactively #'ytel-search)))
+
+;;; peertube.el ends here
