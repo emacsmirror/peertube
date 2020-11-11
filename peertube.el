@@ -39,16 +39,21 @@
 (define-derived-mode peertube-mode tabulated-list-mode "peertube"
   "Major mode for peertube.")
 
+(defvar peertube-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "o" 'peertube-open-video)
+    (define-key map "s" 'peertube-search)
+    (define-key map "d" 'peertube-open-video)
+    (define-key map "g" 'peertube-draw-buffer)
+    (define-key map "n" 'next-line)
+    (define-key map "p" 'previous-line)
+    map)
+  "Keymap for `peertube-mode'.")
+
 (defun peertube-quit ()
   "Close peertube buffer."
   (interactive)
   (quit-window))
-  
-(defvar peertube-videos '()
-  "List of videos displayed in the *peertube* buffer.")
-
-(defvar peertube-account-length 15)
-
 (defun peertube--format-account (account)
   "Format the ACCOUNT name in the *peertube* buffer."
   (propertize account))
