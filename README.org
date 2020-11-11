@@ -1,6 +1,8 @@
 * peertube.el
 =peertube.el= is an Emacs interface for [[search.joinpeertube.org][PeerTube]], heavily insipred by [[https://github.com/gRastello/ytel][ytel]].
 
+[[./demo.png]]
+
 * TODOs
 - [X] Integrate with transmission
 - [ ] Let users specify other fields
