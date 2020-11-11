@@ -6,6 +6,7 @@
 * TODOs
 - [X] Integrate with transmission
 - [ ] Let users specify other fields
+- [X] Colors based on the color theme
 - [ ] Sort result
 - [ ] Select resolution when downloading
 - [ ] Add to MELPA

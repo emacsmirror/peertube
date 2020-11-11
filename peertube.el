@@ -48,6 +48,30 @@
   "Length of the title of the video."
   :type 'integer)
 
+(defface peertube-account-face
+  '((t :inherit font-lock-variable-name-face))
+  "Face used for the account.")
+
+(defface peertube-date-face
+  '((t :inherit font-lock-string-face))
+  "Face used for the date of upload.")
+
+(defface peertube-duration-face
+  '((t :inherit error))
+  "Face used for the duration.")
+
+(defface peertube-tags-face
+  '((t :inherit font-lock-constant-face))
+  "Face used for the tags.")
+
+(defface peertube-title-face
+  '((t :inherit font-lock-type-face))
+  "Face used for the video title.")
+
+(defface peertube-views-face
+  '((t :inherit font-lock-builtin-face))
+  "Face used for the view count.")
+
 (defvar peertube-videos '()
   "List of videos displayed in the *peertube* buffer.")
 
@@ -69,14 +93,15 @@
   "Close peertube buffer."
   (interactive)
   (quit-window))
+
 (defun peertube--format-account (account)
   "Format the ACCOUNT name in the *peertube* buffer."
-  (propertize account))
+  (propertize account 'face `(:inherit peertube-account-face)))
 
-(defun peertube--format-title (title)
-  "Format the video TITLE int the *peertube* buffer."
-  (propertize title))
-
+(defun peertube--format-date (date)
+  "Format the DATE in the *peertube* buffer."
+  (propertize (seq-take date 10) 'face `(:inherit peertube-date-face)))
+			  
 (defun peertube--format-duration (duration)
   "Format the DURATION from seconds to hh:mm:ss in the *peertube* buffer."
   (let ((formatted-string (concat (format-seconds "%.2h" duration)
@@ -85,8 +110,19 @@
 				  ":"
 				  (format-seconds "%.2s" (mod duration 60))
 				  "  ")))
-    (propertize formatted-string)))
+    (propertize formatted-string 'face `(:inherit peertube-duration-face))))
 						  
+(defun peertube--format-tags (tags)
+  "Format the TAGS in the *peertube* buffer."
+  (let ((formatted-string (if (eq (length tags) 0)
+			      (format "")
+			    (format "%s" tags))))
+    (propertize formatted-string 'face `(:inherit peertube-tags-face))))
+
+(defun peertube--format-title (title)
+  "Format the video TITLE int the *peertube* buffer."
+  (propertize title 'face `(:inherit peertube-title-face)))
+
 (defun peertube--format-views (views)
   "Format the VIEWS in the *peertube* buffer.
 
@@ -94,19 +130,8 @@ Format to thousands (K) or millions (M) if necessary."
   (let ((formatted-string (cond ((< 1000000 views) (format "%5sM" (/ (round views 100000) (float 10))))
 				((< 1000 views) (format "%5sK" (/ (round views 100) (float 10))))
 				(t (format "%6s" views)))))
-    (propertize formatted-string)))
+    (propertize formatted-string 'face `(:inherit peertube-views-face))))
 
-(defun peertube--format-tags (tags)
-  "Format the TAGS in the *peertube* buffer."
-  (let ((formatted-string (if (eq (length tags) 0)
-			      (format "")
-			    (format "%s" tags))))
-    (propertize formatted-string)))
-
-(defun peertube--format-date (date)
-  "Format the DATE in the *peertube* buffer."
-  (propertize (seq-take date 10)))
-			  
 (defun peertube--insert-entry (video)
   "Insert VIDEO into the current buffer."
   (list (peertube-video-url video)
