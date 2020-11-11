@@ -19,10 +19,22 @@
 
 (require 'json)
 (require 'cl-lib)
+(require 'transmission)
 
-;; (defvar peertube-date-format "%Y-%m-%d"
-;;   "Format of the date displayed in the *peertube* buffer.
-;; Defaults to %Y-%m-%d, see `format-time-string' for the full documentation.")
+(defgroup peertube nil
+  "Query PeerTube videos in Emacs."
+  :group 'convenience)
+
+(defcustom peertube-account-length 15
+  "Length of the creator of the video."
+  :type 'integer)
+
+(defcustom peertube-title-length 50
+  "Length of the title of the video."
+  :type 'integer)
+
+(defvar peertube-videos '()
+  "List of videos displayed in the *peertube* buffer.")
 
 (define-derived-mode peertube-mode tabulated-list-mode "peertube"
   "Major mode for peertube.")
