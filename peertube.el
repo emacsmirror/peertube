@@ -58,7 +58,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map "o" 'peertube-open-video)
     (define-key map "s" 'peertube-search)
-    (define-key map "d" 'peertube-open-video)
+    (define-key map "d" 'peertube-download-video)
     (define-key map "g" 'peertube-draw-buffer)
     (define-key map "n" 'next-line)
     (define-key map "p" 'previous-line)
