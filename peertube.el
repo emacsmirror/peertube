@@ -28,7 +28,7 @@
 ;; and lists the results in a buffer as a tabulated list.
 ;;
 ;; peertube.el queries https://sepiasearch.org/, the official search
-;; engine for PeerTube.  Learn more at https://joinpeertube.org/
+;; engine for PeerTube.  Learn more at https://joinpeertube.org/.
 
 ;;; Code:
 
@@ -143,6 +143,7 @@ Format to thousands (K) or millions (M) if necessary."
 ;;     ;; https://peertube.dsmouse.net/videos/watch/670b41d7-71bc-4619-ad9e-947136fa6916
 
 (defun peertube-download-video ()
+  "Download the video under the cursor using `transmission-add'."
   (interactive)
   (let* ((url (peertube-video-url (peertube--get-current-video)))
 	 (torrent-link (replace-regexp-in-string "https://\\(.*\\)/videos/watch/\\(.*$\\)"
@@ -153,6 +154,7 @@ Format to thousands (K) or millions (M) if necessary."
   (message "Downloading video..."))
 
 (defun peertube-open-video ()
+  "Open the video under the cursor using `browse-url'."
   (interactive)
   (let ((url (peertube-video-url (peertube--get-current-video))))
     (browse-url url)))
@@ -160,7 +162,6 @@ Format to thousands (K) or millions (M) if necessary."
 (defun peertube-search (query)
   "Search PeerTube for QUERY."
   (interactive "sSearch PeerTube: ")
-  ;; (peertube-buffer)
   (setq peertube-videos (peertube-query query))
   (peertube-draw-buffer))
 
@@ -195,6 +196,7 @@ Curl is used to call 'search.joinpeertube.org', the result gets parsed by `json-
       (cdr (car (cdr (json-read))))))
 
 (defun peertube-query (query)
+  "Query PeerTube for QUERY and parse the results."
   (interactive)
   (let ((videos (peertube--call-api query)))
     (dotimes (i (length videos))
@@ -218,7 +220,7 @@ Curl is used to call 'search.joinpeertube.org', the result gets parsed by `json-
 
 ;;;###autoload
 (defun peertube ()
-  "Enter peertube."
+  "Open the '*peertube*' buffer."
   (interactive)
   (switch-to-buffer "*peertube*")
   (unless (eq major-mode 'peertube-mode)
