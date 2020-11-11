@@ -17,6 +17,8 @@
 ;; You should have received a copy of the GNU Affero General Public License
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Code
+
 (require 'json)
 (require 'cl-lib)
 (require 'transmission)
@@ -102,12 +104,14 @@ Format to thousands (K) or millions (M) if necessary."
 		(peertube--format-views (peertube-video-views video))
 		(peertube--format-tags (peertube-video-tags video)))))
   
-(defun peertube--draw-buffer ()
+(defun peertube-draw-buffer ()
   "Draw buffer with video entries."
   (interactive)
+  (read-only-mode -1)
   (erase-buffer)
+  (read-only-mode 1)
   (setq tabulated-list-format `[("Duration" 10 t)
-				("Title" 50 t)
+				("Title" ,peertube-title-length t)
 				("Account" ,peertube-account-length t)
 				("Date" 10 t)
 				("Views" 6 t)
@@ -125,33 +129,27 @@ Format to thousands (K) or millions (M) if necessary."
 ;;   (let ((url (peertube-video-url (peertube--get-current-video))))
 ;;     ;; https://peertube.dsmouse.net/videos/watch/670b41d7-71bc-4619-ad9e-947136fa6916
 
-(defun peertube-open ()
+(defun peertube-download-video ()
+  (interactive)
+  (let* ((url (peertube-video-url (peertube--get-current-video)))
+	 (torrent-link (replace-regexp-in-string "https://\\(.*\\)/videos/watch/\\(.*$\\)"
+			    "https://\\1/download/torrents/\\2-720.torrent"
+			    url)))
+    (message torrent-link)
+    (transmission-add torrent-link))
+  (message "Downloading video..."))
+
+(defun peertube-open-video ()
   (interactive)
   (let ((url (peertube-video-url (peertube--get-current-video))))
     (browse-url url)))
-  
-;; (defun peertube-buffer ()
-;;   "Draw the '*peertube*' buffer and switch to it."
-;;   (interactive)
-;;   (switch-to-buffer "*peertube*")
-;;   (erase-buffer))
   
 (defun peertube-search (query)
   "Search PeerTube for QUERY."
   (interactive "sSearch PeerTube: ")
   ;; (peertube-buffer)
   (setq peertube-videos (peertube-query query))
-  (peertube--draw-buffer))
-
-
-  ;; (seq-do (lambda (v)
-  ;; 	    (peertube--insert-video v))
-  ;; 	  peertube-videos))
-
-  ;; (let ((videos (peertube-query query)))
-  ;;   (seq-do (lambda (v)
-  ;; 	      (peertube--insert-video v))
-  ;; 	    peertube-videos)))
+  (peertube-draw-buffer))
 
 ;; Store metadata for PeerTube videos
 (cl-defstruct (peertube-video (:constructor peertube--create-video)
@@ -204,7 +202,6 @@ Curl is used to call 'search.joinpeertube.org', the result gets parsed by `json-
 				      :nsfw (assoc-default 'nsfw v)))))
     videos))
 
-(provide 'peertube)
 
 ;;;###autoload
 (defun peertube ()
@@ -212,9 +209,9 @@ Curl is used to call 'search.joinpeertube.org', the result gets parsed by `json-
   (interactive)
   (switch-to-buffer "*peertube*")
   (unless (eq major-mode 'peertube-mode)
-    (peertube-mode))
-  (call-interactively 'peertube-search))
-  ;; (when (seq-empty-p ytel-search-term)
-  ;;   (call-interactively #'ytel-search)))
+    (peertube-mode)
+    (call-interactively 'peertube-search)))
+
+(provide 'peertube)
 
 ;;; peertube.el ends here
