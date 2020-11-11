@@ -6,3 +6,5 @@
 - [ ] Let users specify other fields
 - [ ] Sort result
 - [ ] Select resolution when downloading
+- [ ] Add to MELPA
+
