@@ -3,7 +3,7 @@
 ;; This file is NOT part of Emacs.
 
 ;; Author: yoctocell <yoctocell@disroot.org>
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Keywords: peertube multimedia
 ;; URL: https://github.com/yoctocell/peertube.el
 ;; License: GNU General Public License >= 3
