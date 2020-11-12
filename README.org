@@ -6,11 +6,11 @@
 * TODOs
 - [X] Integrate with transmission
 - [X] Colors based on the color theme
+- [X] Change sorting method
 - [ ] Let users specify other fields
-- [ ] Sort results
 - [ ] Select resolution when downloading
 - [ ] Show more metadata
-- [ ] Open channel
+- [ ] Open channel link
 - [ ] Add to MELPA
 
 

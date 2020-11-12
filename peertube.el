@@ -42,12 +42,20 @@
 
 (defcustom peertube-account-length 15
   "Length of the creator of the video."
-  :type 'integer)
+  :type 'integer
+  :group 'peertube)
 
 (defcustom peertube-title-length 50
   "Length of the title of the video."
-  :type 'integer)
+  :type 'integer
+  :group 'peertube)
 
+(defcustom peertube-sort-method 'relevance
+  "How to sort search results."
+  :type 'symbol
+  :options peertube-sort-methods
+  :group 'peertube)
+  
 (defface peertube-account-face
   '((t :inherit font-lock-variable-name-face))
   "Face used for the account.")
@@ -75,6 +83,15 @@
 (defvar peertube-videos '()
   "List of videos displayed in the *peertube* buffer.")
 
+(defvar disable-nsfw nil
+  "Whether to disable NSFW content.")
+
+(defvar peertube-search-term ""
+  "Current peertube search term.")
+
+(defvar peertube-sort-methods '(relevance most-recent least-recent)
+  "List of available sorting methods for `peertube'.")
+
 (define-derived-mode peertube-mode tabulated-list-mode "peertube"
   "Major mode for peertube.")
 
@@ -93,6 +110,9 @@
   "Close peertube buffer."
   (interactive)
   (quit-window))
+
+(defun peertube--remove-nsfw (videos)
+  "Removes videos marked as NSFW from the results.")
 
 (defun peertube--format-account (account)
   "Format the ACCOUNT name in the *peertube* buffer."
@@ -127,9 +147,12 @@
   "Format the VIEWS in the *peertube* buffer.
 
 Format to thousands (K) or millions (M) if necessary."
-  (let ((formatted-string (cond ((< 1000000 views) (format "%5sM" (/ (round views 100000) (float 10))))
-				((< 1000 views) (format "%5sK" (/ (round views 100) (float 10))))
-				(t (format "%6s" views)))))
+  (let ((formatted-string
+	 (cond ((< 1000000 views)
+		(format "%5sM" (/ (round views 100000) (float 10))))
+	       ((< 1000 views)
+		(format "%5sK" (/ (round views 100) (float 10))))
+	       (t (format "%6s" views)))))
     (propertize formatted-string 'face `(:inherit peertube-views-face))))
 
 (defun peertube--insert-entry (video)
@@ -154,7 +177,8 @@ Format to thousands (K) or millions (M) if necessary."
 				("Date" 10 t)
 				("Views" 6 t)
 				("Tags" 10 nil)])
-  (setq tabulated-list-entries (mapcar 'peertube--insert-entry peertube-videos))
+  (setq tabulated-list-entries (mapcar 'peertube--insert-entry
+				       peertube-videos))
   (tabulated-list-init-header)
   (tabulated-list-print))
   
@@ -171,10 +195,10 @@ Format to thousands (K) or millions (M) if necessary."
   "Download the video under the cursor using `transmission-add'."
   (interactive)
   (let* ((url (peertube-video-url (peertube--get-current-video)))
-	 (torrent-link (replace-regexp-in-string "https://\\(.*\\)/videos/watch/\\(.*$\\)"
-			    "https://\\1/download/torrents/\\2-720.torrent"
-			    url)))
-    (message torrent-link)
+	 (torrent-link (replace-regexp-in-string
+			"https://\\(.*\\)/videos/watch/\\(.*$\\)"
+			"https://\\1/download/torrents/\\2-720.torrent"
+			url)))
     (transmission-add torrent-link))
   (message "Downloading video..."))
 
@@ -183,11 +207,20 @@ Format to thousands (K) or millions (M) if necessary."
   (interactive)
   (let ((url (peertube-video-url (peertube--get-current-video))))
     (browse-url url)))
+
+(defun peertube-change-sort-method ()
+  "Change sorting method used for `peertube' and update the results buffer."
+  (interactive)
+  (let ((method (intern (completing-read "PeerTube sorting method: "
+					 peertube-sort-methods))))
+    (setq peertube-sort-method method))
+  (peertube-search peertube-search-term))
   
 (defun peertube-search (query)
   "Search PeerTube for QUERY."
   (interactive "sSearch PeerTube: ")
   (setq peertube-videos (peertube-query query))
+  (setq peertube-search-term query)
   (peertube-draw-buffer))
 
 ;; Store metadata for PeerTube videos
@@ -208,17 +241,33 @@ Format to thousands (K) or millions (M) if necessary."
   (dislikes 0 :read-only t)
   (nsfw nil :read-only t))
 
+(defun peertube--get-sort-method ()
+  "Given a sorting method SORT, return the 'real' name of the method."
+  (cond ((eq peertube-sort-method 'least-recent) "publishedAt")
+	((eq peertube-sort-method 'most-recent) "-publishedAt")
+	(t "-match")))
+
+(defun peertube--pre-process-query (query)
+  "Remove spaces in QUERY to make them api friendly."
+  (replace-regexp-in-string "\\s-" "%20" query))
+
 (defun peertube--call-api (query)
   "Call the PeerTube search API with QUERY as the search term.
 
-Curl is used to call 'search.joinpeertube.org', the result gets parsed by `json-read'."
-  (with-temp-buffer
-    (call-process "curl" nil t nil "--silent" "-X" "GET" (concat "https://sepiasearch.org/api/v1/search/videos?search=" query "&"))
+Curl is used to call 'search.joinpeertube.org', the result gets
+parsed by `json-read'."
+  (let ((sort (peertube--get-sort-method))
+	(query (peertube--pre-process-query query)))
+    (with-temp-buffer
+      (call-process "curl" nil t nil "--silent" "-X" "GET"
+		    (concat
+		     "https://sepiasearch.org/api/v1/search/videos?search="
+		     query "&sort=" sort "&page=1"))
       (goto-char (point-min))
       ;; ((total . [0-9]{4}) (data . [(... ... ...) (... ... ...) ...]))
       ;;                             └───────────────────────────────┘
       ;;                                   extract useful data
-      (cdr (car (cdr (json-read))))))
+      (cdr (car (cdr (json-read)))))))
 
 (defun peertube-query (query)
   "Query PeerTube for QUERY and parse the results."
@@ -227,19 +276,20 @@ Curl is used to call 'search.joinpeertube.org', the result gets parsed by `json-
     (dotimes (i (length videos))
       (let ((v (aref videos i)))
 	(aset videos i
-	      (peertube--create-video :title (assoc-default 'name v)
-				      :account (assoc-default 'name (assoc-default 'account v))
-				      :channel (assoc-default 'name (assoc-default 'channel v))
-				      :date (assoc-default 'publishedAt v)
-				      :category (assoc-default 'label (assoc-default 'category v))
-				      :language (assoc-default 'label (assoc-default 'language v))
-				      :duration (assoc-default 'duration v)
-				      :tags (assoc-default 'tags v)
-				      :url (assoc-default 'url v)
-				      :views (assoc-default 'views v)
-				      :likes (assoc-default 'likes v)
-				      :dislikes (assoc-default 'dislikes v)
-				      :nsfw (assoc-default 'nsfw v)))))
+	      (peertube--create-video
+	       :title (assoc-default 'name v)
+	       :account (assoc-default 'name (assoc-default 'account v))
+	       :channel (assoc-default 'name (assoc-default 'channel v))
+	       :date (assoc-default 'publishedAt v)
+	       :category (assoc-default 'label (assoc-default 'category v))
+	       :language (assoc-default 'label (assoc-default 'language v))
+	       :duration (assoc-default 'duration v)
+	       :tags (assoc-default 'tags v)
+	       :url (assoc-default 'url v)
+	       :views (assoc-default 'views v)
+	       :likes (assoc-default 'likes v)
+	       :dislikes (assoc-default 'dislikes v)
+	       :nsfw (assoc-default 'nsfw v)))))
     videos))
 
 
