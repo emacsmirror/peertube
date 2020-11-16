@@ -5,6 +5,21 @@
 
 [[./demo.png]]
 
+* Features
+- Respects your native color theme
+- Integration with [[https://github.com/a13/transmission.el][transmission.el]] for downloading videos
+- It uses [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Tabulated-List-Mode.html][tabulated list mode]] and comes with the features associated with it
+
+* Keybindings
+| Key | Function               |
+|-----+------------------------|
+| n   | next line              |
+| p   | previous line          |
+| o   | open video             |
+| d   | download video         |
+| s   | search for video       |
+| g   | refresh search results |
+
 * TODOs
 - [X] Integrate with transmission
 - [X] Colors based on the color theme
@@ -12,6 +27,7 @@
 - [X] Open channel link
 - [X] Select resolution when downloading
 - [ ] Let users specify other fields
+- [ ] Preview thumbnail
 - [ ] Show more metadata
 - [ ] Add to MELPA
 

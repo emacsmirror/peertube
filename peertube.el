@@ -48,9 +48,10 @@
 (defvar peertube-sort-methods '(relevance most-recent least-recent)
   "List of available sorting methods for `peertube'.")
 
-(defvar peertube-video-resolutions '(1080 720 480 360)
+(defvar peertube-video-resolutions '(720 1080 480 360)
   "List of available resolutions for videos in `peetube'.
 
+The order matters, the first one will be the default choice.
 Note: Not all resolutions are available for att videos.")
 
 (defgroup peertube nil
