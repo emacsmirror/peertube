@@ -3,7 +3,7 @@
 ;; This file is NOT part of Emacs.
 
 ;; Author: yoctocell <yoctocell@disroot.org>
-;; Version: 0.2.0
+;; Version: 0.3.0
 ;; Keywords: peertube multimedia
 ;; URL: https://github.com/yoctocell/peertube.el
 ;; License: GNU General Public License >= 3
@@ -36,11 +36,28 @@
 (require 'cl-lib)
 (require 'transmission)
 
+(defvar peertube-videos '()
+  "List of videos displayed in the *peertube* buffer.")
+
+(defvar disable-nsfw nil
+  "Whether to disable NSFW content.")
+
+(defvar peertube-search-term ""
+  "Current peertube search term.")
+
+(defvar peertube-sort-methods '(relevance most-recent least-recent)
+  "List of available sorting methods for `peertube'.")
+
+(defvar peertube-video-resolutions '(1080 720 480 360)
+  "List of available resolutions for videos in `peetube'.
+
+Note: Not all resolutions are available for att videos.")
+
 (defgroup peertube nil
   "Query PeerTube videos in Emacs."
   :group 'convenience)
 
-(defcustom peertube-account-length 15
+(defcustom peertube-channel-length 15
   "Length of the creator of the video."
   :type 'integer
   :group 'peertube)
@@ -56,9 +73,9 @@
   :options peertube-sort-methods
   :group 'peertube)
   
-(defface peertube-account-face
+(defface peertube-channel-face
   '((t :inherit font-lock-variable-name-face))
-  "Face used for the account.")
+  "Face used for the channel.")
 
 (defface peertube-date-face
   '((t :inherit font-lock-string-face))
@@ -79,18 +96,6 @@
 (defface peertube-views-face
   '((t :inherit font-lock-builtin-face))
   "Face used for the view count.")
-
-(defvar peertube-videos '()
-  "List of videos displayed in the *peertube* buffer.")
-
-(defvar disable-nsfw nil
-  "Whether to disable NSFW content.")
-
-(defvar peertube-search-term ""
-  "Current peertube search term.")
-
-(defvar peertube-sort-methods '(relevance most-recent least-recent)
-  "List of available sorting methods for `peertube'.")
 
 (define-derived-mode peertube-mode tabulated-list-mode "peertube"
   "Major mode for peertube.")
@@ -114,9 +119,9 @@
 (defun peertube--remove-nsfw (videos)
   "Removes videos marked as NSFW from the results.")
 
-(defun peertube--format-account (account)
-  "Format the ACCOUNT name in the *peertube* buffer."
-  (propertize account 'face `(:inherit peertube-account-face)))
+(defun peertube--format-channel (channel)
+  "Format the CHANNEL name in the *peertube* buffer."
+  (propertize channel 'face `(:inherit peertube-channel-face)))
 
 (defun peertube--format-date (date)
   "Format the DATE in the *peertube* buffer."
@@ -160,7 +165,7 @@ Format to thousands (K) or millions (M) if necessary."
   (list (peertube-video-url video)
 	(vector (peertube--format-duration (peertube-video-duration video))
 		(peertube--format-title (peertube-video-title video))
-		(peertube--format-account (peertube-video-account video))
+		(peertube--format-channel (peertube-video-channel video))
 		(peertube--format-date (peertube-video-date video))
 		(peertube--format-views (peertube-video-views video))
 		(peertube--format-tags (peertube-video-tags video)))))
@@ -173,7 +178,7 @@ Format to thousands (K) or millions (M) if necessary."
   (read-only-mode 1)
   (setq tabulated-list-format `[("Duration" 10 t)
 				("Title" ,peertube-title-length t)
-				("Account" ,peertube-account-length t)
+				("Channel" ,peertube-channel-length t)
 				("Date" 10 t)
 				("Views" 6 t)
 				("Tags" 10 nil)])
@@ -186,19 +191,36 @@ Format to thousands (K) or millions (M) if necessary."
   "Get the currently selected video."
   (aref peertube-videos (1- (line-number-at-pos))))
 
-;; (defun peertube-download ()
-;;   (interactive)
-;;   (let ((url (peertube-video-url (peertube--get-current-video))))
-;;     ;; https://peertube.dsmouse.net/videos/watch/670b41d7-71bc-4619-ad9e-947136fa6916
+(defun peertube-iterate (url resolutions)
+  (when resolutions
+    (let ((torrent-link (replace-regexp-in-string
+			 "https://\\(.*\\)/videos/watch/\\(.*$\\)"
+			 (concat "https://\\1/download/torrents/\\2-"
+				 (car resolutions) ".torrent")
+			 url)))
+      (if (message torrent-link)
+	  t
+	(append torrent-link (peertube-iterate url (nthcdr 1 resolutions)))))))
 
+    
+;; (peertube-iterate "https://peertube.dsmouse.net/videos/watch/670b41d7-71bc-4619-ad9e-947136fa6916" '("1080" "720" "480"))
+    
+
+
+  
 (defun peertube-download-video ()
   "Download the video under the cursor using `transmission-add'."
   (interactive)
   (let* ((url (peertube-video-url (peertube--get-current-video)))
+	 (res (completing-read "Resolution of video: "
+			       (mapcar 'number-to-string peertube-video-resolutions)))
 	 (torrent-link (replace-regexp-in-string
 			"https://\\(.*\\)/videos/watch/\\(.*$\\)"
-			"https://\\1/download/torrents/\\2-720.torrent"
+			(concat "https://\\1/download/torrents/\\2-"
+			res
+			".torrent")
 			url)))
+    (message torrent-link)
     (transmission-add torrent-link))
   (message "Downloading video..."))
 
@@ -206,6 +228,12 @@ Format to thousands (K) or millions (M) if necessary."
   "Open the video under the cursor using `browse-url'."
   (interactive)
   (let ((url (peertube-video-url (peertube--get-current-video))))
+    (browse-url url)))
+
+(defun peertube-goto-channel ()
+  "Go to the channel page of the current video."
+  (interactive)
+  (let ((url (peertube-video-channelUrl (peertube--get-current-video))))
     (browse-url url)))
 
 (defun peertube-change-sort-method ()
@@ -229,7 +257,9 @@ Format to thousands (K) or millions (M) if necessary."
   "Metadata for a PeerTube video."
   (title "" :read-only t)
   (account "" :read-only t)
+  (accountUrl "" :read-only t)
   (channel "" :read-only t)
+  (channelUrl "" :read-only t)
   (date "" :read-only t)
   (category "" :read-only t)
   (language "" :read-only t)
@@ -279,7 +309,9 @@ parsed by `json-read'."
 	      (peertube--create-video
 	       :title (assoc-default 'name v)
 	       :account (assoc-default 'name (assoc-default 'account v))
+	       :accountUrl (assoc-default 'url (assoc-default 'account v))
 	       :channel (assoc-default 'name (assoc-default 'channel v))
+	       :channelUrl (assoc-default 'url (assoc-default 'channel v))
 	       :date (assoc-default 'publishedAt v)
 	       :category (assoc-default 'label (assoc-default 'category v))
 	       :language (assoc-default 'label (assoc-default 'language v))

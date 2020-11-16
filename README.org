@@ -9,10 +9,10 @@
 - [X] Integrate with transmission
 - [X] Colors based on the color theme
 - [X] Change sorting method
+- [X] Open channel link
+- [X] Select resolution when downloading
 - [ ] Let users specify other fields
-- [ ] Select resolution when downloading
 - [ ] Show more metadata
-- [ ] Open channel link
 - [ ] Add to MELPA
 
 
