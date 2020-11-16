@@ -237,6 +237,19 @@ Format to thousands (K) or millions (M) if necessary."
   (let ((url (peertube-video-channelUrl (peertube--get-current-video))))
     (browse-url url)))
 
+(defun peertube-preview-thumbnail ()
+  "View the thumbnail of the current video."
+  (interactive)
+  (let ((url (peertube-video-thumbnailUrl (peertube--get-current-video)))
+	(temp-file (make-temp-file "thumbnail")))
+    (progn
+      (call-process "curl" nil nil nil url "-o" temp-file)
+      (find-file temp-file)
+      ;; (ignore-errors
+      ;; 	(rename-buffer "*peertube-thumbnail*"))
+      ;; (kill-buffer (replace-regexp-in-string ".*/\\(.*$\\)" "\1" temp-file))
+      (image-transform-set-scale 4))))
+
 (defun peertube-change-sort-method ()
   "Change sorting method used for `peertube' and update the results buffer."
   (interactive)
@@ -270,7 +283,8 @@ Format to thousands (K) or millions (M) if necessary."
   (views 0 :read-only t)
   (likes 0 :read-only t)
   (dislikes 0 :read-only t)
-  (nsfw nil :read-only t))
+  (nsfw nil :read-only t)
+  (thumbnailUrl "" :read-only t))
 
 (defun peertube--get-sort-method ()
   "Given a sorting method SORT, return the 'real' name of the method."
@@ -322,7 +336,8 @@ parsed by `json-read'."
 	       :views (assoc-default 'views v)
 	       :likes (assoc-default 'likes v)
 	       :dislikes (assoc-default 'dislikes v)
-	       :nsfw (assoc-default 'nsfw v)))))
+	       :nsfw (assoc-default 'nsfw v)
+	       :thumbnailUrl (assoc-default 'thumbnailUrl v)))))
     videos))
 
 

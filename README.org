@@ -26,8 +26,8 @@
 - [X] Change sorting method
 - [X] Open channel link
 - [X] Select resolution when downloading
+- [X] Preview thumbnail
 - [ ] Let users specify other fields
-- [ ] Preview thumbnail
 - [ ] Show more metadata
 - [ ] Add to MELPA
 
