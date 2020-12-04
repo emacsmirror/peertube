@@ -250,6 +250,23 @@ Format to thousands (K) or millions (M) if necessary."
       ;; (kill-buffer (replace-regexp-in-string ".*/\\(.*$\\)" "\1" temp-file))
       (image-transform-set-scale 4))))
 
+(defun peertube-show-video-info ()
+  "Show more information about video under point."
+  (interactive)
+  (let ((title (concat "Title: " (peertube-video-title (peertube--get-current-video)) "\n"))
+	(channel (concat "Channel: " (peertube-video-channel (peertube--get-current-video)) "\n"))
+	(date (concat "Published: " (peertube-video-date (peertube--get-current-video)) "\n"))
+	(views (concat "Views: " (number-to-string (peertube-video-views (peertube--get-current-video))) "\n"))
+	(duration (concat "Duration: " (number-to-string (peertube-video-duration (peertube--get-current-video))) "\n"))
+	(likes (concat "Likes: " (number-to-string (peertube-video-likes (peertube--get-current-video))) "\n"))
+	(dislikes (concat "Dislikes: " (number-to-string (peertube-video-dislikes (peertube--get-current-video))) "\n"))
+	(description (concat "Description\n" (peertube-video-description (peertube--get-current-video)))))
+    (switch-to-buffer "*peertube-info*")
+    (with-current-buffer "*peertube-info*"
+      (erase-buffer)
+      (insert
+       (concat title channel date views duration likes dislikes description)))))
+
 (defun peertube-change-sort-method ()
   "Change sorting method used for `peertube' and update the results buffer."
   (interactive)
@@ -284,7 +301,9 @@ Format to thousands (K) or millions (M) if necessary."
   (likes 0 :read-only t)
   (dislikes 0 :read-only t)
   (nsfw nil :read-only t)
-  (thumbnailUrl "" :read-only t))
+  (thumbnailUrl "" :read-only t)
+  (description "" :read-only t)
+  (host "" :read-only t))
 
 (defun peertube--get-sort-method ()
   "Given a sorting method SORT, return the 'real' name of the method."
@@ -337,7 +356,9 @@ parsed by `json-read'."
 	       :likes (assoc-default 'likes v)
 	       :dislikes (assoc-default 'dislikes v)
 	       :nsfw (assoc-default 'nsfw v)
-	       :thumbnailUrl (assoc-default 'thumbnailUrl v)))))
+	       :thumbnailUrl (assoc-default 'thumbnailUrl v)
+	       :description (assoc-default 'description v)
+	       :host (assoc-default 'host (assoc-default 'channel v))))))
     videos))
 
 
