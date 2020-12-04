@@ -1,12 +1,9 @@
 * peertube.el
-=peertube.el= is an Emacs interface for [[search.joinpeertube.org][PeerTube]], heavily insipred by [[https://github.com/gRastello/ytel][ytel]].
-
-*Note*: This is still in alpha stage.
+=peertube.el= is an Emacs interface for [[https://joinpeertube.org][PeerTube]], heavily insipred by [[https://github.com/gRastello/ytel][ytel]].
 
 [[./demo.png]]
 
 * Features
-- Respects your native color theme
 - Integration with [[https://github.com/a13/transmission.el][transmission.el]] for downloading videos
 - It uses [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Tabulated-List-Mode.html][tabulated list mode]] and comes with the features associated with it
 
