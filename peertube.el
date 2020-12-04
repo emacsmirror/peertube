@@ -1,11 +1,11 @@
 ;;; peertube.el --- Query PeerTube videos in Emacs -*- lexical-binding: t; -*-
 
-;; This file is NOT part of Emacs.
+;; Copyright (C) 2020 yoctocell
 
-;; Author: yoctocell <yoctocell@disroot.org>
+;; Author: yoctocell <public@yoctocell.xyz>
 ;; Version: 0.3.0
 ;; Keywords: peertube multimedia
-;; URL: https://github.com/yoctocell/peertube.el
+;; URL: https://git.sr.ht/~yoctocell/peertube
 ;; License: GNU General Public License >= 3
 ;; Package-Requires: ((emacs "25.3") (transmission "0.12.1")
 
@@ -23,7 +23,7 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
+;;
 ;; This package provides an interface to search for PeerTube videos
 ;; and lists the results in a buffer as a tabulated list.
 ;;
