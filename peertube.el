@@ -104,17 +104,17 @@ Note: Not all resolutions are available for att videos."
   '((t :inherit font-lock-builtin-face))
   "Face used for the view count.")
 
-(define-derived-mode peertube-mode tabulated-list-mode "peertube"
+(define-derived-mode peertube-mode tabulated-list-mode "peertube-mode"
   "Major mode for peertube.")
 
 (defvar peertube-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "o" 'peertube-open-video)
-    (define-key map "s" 'peertube-search)
-    (define-key map "d" 'peertube-download-video)
-    (define-key map "g" 'peertube-draw-buffer)
-    (define-key map "n" 'next-line)
-    (define-key map "p" 'previous-line)
+    (define-key map "o" #'peertube-open-video)
+    (define-key map "s" #'peertube-search)
+    (define-key map "d" #'peertube-download-video)
+    (define-key map "g" #'peertube-draw-buffer)
+    (define-key map "n" #'next-line)
+    (define-key map "p" #'previous-line)
     map)
   "Keymap for `peertube-mode'.")
 
