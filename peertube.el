@@ -3,11 +3,11 @@
 ;; Copyright (C) 2020 yoctocell
 
 ;; Author: yoctocell <public@yoctocell.xyz>
-;; Version: 0.3.1
-;; Keywords: peertube multimedia
 ;; URL: https://git.sr.ht/~yoctocell/peertube
-;; License: GNU General Public License >= 3
+;; Version: 0.3.1
 ;; Package-Requires: ((emacs "25.1") (transmission "0.12.1"))
+;; Keywords: peertube multimedia
+;; License: GNU General Public License >= 3
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;
+
 ;; This package provides an interface to search for PeerTube videos
 ;; and lists the results in a buffer as a tabulated list.
 ;;
