@@ -8,14 +8,14 @@
 - It uses [tabulated list mode](https://www.gnu.org/software/emacs/manual/html_node/elisp/Tabulated-List-Mode.html) and comes with the features associated with it
 
 # Keybindings
-| Key | Function               |
-|-----|------------------------|
-| n   | next line              |
-| p   | previous line          |
-| o   | open video             |
-| d   | download video         |
-| s   | search for video       |
-| g   | refresh search results |
+| Key | Function                         |
+|-----+----------------------------------|
+| n   | next line                        |
+| p   | previous line                    |
+| o   | open video with your browser     |
+| d   | download video with transmission |
+| s   | search for video                 |
+| g   | refresh search results           |
 
 # TODOs
 - \[X\] Integrate with transmission
