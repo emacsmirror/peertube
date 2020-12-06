@@ -7,7 +7,7 @@
 ;; Keywords: peertube multimedia
 ;; URL: https://git.sr.ht/~yoctocell/peertube
 ;; License: GNU General Public License >= 3
-;; Package-Requires: ((emacs "25.3") (transmission "0.12.1")
+;; Package-Requires: ((emacs "25.3") (transmission "0.12.1"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
