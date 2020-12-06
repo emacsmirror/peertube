@@ -193,7 +193,7 @@ Format to thousands (K) or millions (M) if necessary."
 				("Date" 10 t)
 				("Views" 6 t)
 				("Tags" 10 nil)])
-  (setq tabulated-list-entries (mapcar 'peertube--insert-entry
+  (setq tabulated-list-entries (mapcar #'peertube--insert-entry
 				       peertube-videos))
   (tabulated-list-init-header)
   (tabulated-list-print))
@@ -207,7 +207,7 @@ Format to thousands (K) or millions (M) if necessary."
   (interactive)
   (let* ((url (peertube-video-url (peertube--get-current-video)))
 	 (res (completing-read "Resolution of video: "
-			       (mapcar 'number-to-string peertube-video-resolutions)))
+			       (mapcar #'number-to-string peertube-video-resolutions)))
 	 (torrent-link (replace-regexp-in-string
 			"https://\\(.*\\)/videos/watch/\\(.*$\\)"
 			(concat "https://\\1/download/torrents/\\2-"
@@ -269,7 +269,7 @@ Format to thousands (K) or millions (M) if necessary."
   "Search PeerTube for QUERY."
   (interactive "sSearch PeerTube: ")
   (let ((videos (if peertube-disable-nsfw
-		    (cl-remove-if #'null (mapcar 'peertube--remove-nsfw (peertube-query query)))
+		    (cl-remove-if #'null (mapcar #'peertube--remove-nsfw (peertube-query query)))
 		  (peertube-query query))))
     (setq peertube-videos videos))
   (setq peertube-search-term query)
