@@ -36,12 +36,16 @@
 (require 'cl-lib)
 (require 'cl-seq)
 (require 'transmission)
+(require 'image-mode)
 
 (defvar peertube-videos '()
   "List of videos displayed in the *peertube* buffer.")
 
 (defvar peertube-search-term ""
   "Current peertube search term.")
+
+(defvar peertube-sort-methods '(relevance most-recent least-recent)
+  "Sorting methods for that PeerTube accepts.")
 
 (defgroup peertube nil
   "Query PeerTube videos in Emacs."
@@ -53,7 +57,7 @@
   :group 'peertube)
 
 (defcustom peertube-video-resolutions '(720 1080 480 360)
-  "List of available resolutions for videos in `peetube'.
+  "List of available resolutions for videos in `peertube'.
 
 The order matters, the first one will be the default choice.
 Note: Not all resolutions are available for att videos."
@@ -73,7 +77,7 @@ Note: Not all resolutions are available for att videos."
 (defcustom peertube-sort-method 'relevance
   "How to sort search results."
   :type 'symbol
-  :options '(relevance most-recent least-recent)
+  :options peertube-sort-methods
   :group 'peertube)
 
 (defface peertube-channel-face
