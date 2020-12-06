@@ -1,25 +1,13 @@
-peertube.el
-===========
-
-`peertube.el` is an Emacs interface for
-[PeerTube](https://joinpeertube.org), heavily insipred by
-[ytel](https://github.com/gRastello/ytel).
+# peertube.el
+`peertube.el` is an Emacs interface for querying [PeerTube](https://joinpeertube.org), insipred by [ytel](https://github.com/gRastello/ytel).
 
 ![](./demo.png)
 
-Features
-========
+# Features
+- Integration with [transmission.el](https://github.com/a13/transmission.el) for downloading videos
+- It uses [tabulated list mode](https://www.gnu.org/software/emacs/manual/html_node/elisp/Tabulated-List-Mode.html) and comes with the features associated with it
 
--   Integration with
-    [transmission.el](https://github.com/a13/transmission.el) for
-    downloading videos
--   It uses [tabulated list
-    mode](https://www.gnu.org/software/emacs/manual/html_node/elisp/Tabulated-List-Mode.html)
-    and comes with the features associated with it
-
-Keybindings
-===========
-
+# Keybindings
 | Key | Function               |
 |-----|------------------------|
 | n   | next line              |
@@ -29,15 +17,13 @@ Keybindings
 | s   | search for video       |
 | g   | refresh search results |
 
-TODOs
-=====
-
--   \[X\] Integrate with transmission
--   \[X\] Colors based on the color theme
--   \[X\] Change sorting method
--   \[X\] Open channel link
--   \[X\] Select resolution when downloading
--   \[X\] Preview thumbnail
--   \[ \] Let users specify other fields
--   \[ \] Show more metadata
--   \[ \] Add to MELPA
+# TODOs
+- \[X\] Integrate with transmission
+- \[X\] Colors based on the color theme
+- \[X\] Change sorting method
+- \[X\] Open channel link
+- \[X\] Select resolution when downloading
+- \[X\] Preview thumbnail
+- \[X\] Let users specify other fields
+- \[ \] Show more metadata
+- \[ \] Add to MELPA/ELPA
