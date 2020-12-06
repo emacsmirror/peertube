@@ -34,6 +34,7 @@
 
 (require 'json)
 (require 'cl-lib)
+(require 'cl-seq)
 (require 'transmission)
 
 (defvar peertube-videos '()
@@ -46,7 +47,7 @@
   "Query PeerTube videos in Emacs."
   :group 'convenience)
 
-(defcustom peertube-disable-nsfw nil
+(defcustom peertube-disable-nsfw t
   "Whether to disable NSFW content."
   :type 'boolean
   :group 'peertube)
@@ -74,7 +75,7 @@ Note: Not all resolutions are available for att videos."
   :type 'symbol
   :options '(relevance most-recent least-recent)
   :group 'peertube)
-  
+
 (defface peertube-channel-face
   '((t :inherit font-lock-variable-name-face))
   "Face used for the channel.")
@@ -118,8 +119,12 @@ Note: Not all resolutions are available for att videos."
   (interactive)
   (quit-window))
 
-(defun peertube--remove-nsfw (videos)
-  "Removes videos marked as NSFW from the results.")
+(defun peertube--remove-nsfw (video)
+  "Remove VIDEO if marked as NSFW."
+  (let ((nsfw (peertube-video-nsfw video)))
+    (if (eq nsfw t)
+	nil
+      video)))
 
 (defun peertube--format-channel (channel)
   "Format the CHANNEL name in the *peertube* buffer."
@@ -128,7 +133,7 @@ Note: Not all resolutions are available for att videos."
 (defun peertube--format-date (date)
   "Format the DATE in the *peertube* buffer."
   (propertize (seq-take date 10) 'face `(:inherit peertube-date-face)))
-			  
+
 (defun peertube--format-duration (duration)
   "Format the DURATION from seconds to hh:mm:ss in the *peertube* buffer."
   (let ((formatted-string (concat (format-seconds "%.2h" duration)
@@ -138,7 +143,7 @@ Note: Not all resolutions are available for att videos."
 				  (format-seconds "%.2s" (mod duration 60))
 				  "  ")))
     (propertize formatted-string 'face `(:inherit peertube-duration-face))))
-						  
+
 (defun peertube--format-tags (tags)
   "Format the TAGS in the *peertube* buffer."
   (let ((formatted-string (if (eq (length tags) 0)
@@ -171,7 +176,7 @@ Format to thousands (K) or millions (M) if necessary."
 		(peertube--format-date (peertube-video-date video))
 		(peertube--format-views (peertube-video-views video))
 		(peertube--format-tags (peertube-video-tags video)))))
-  
+
 (defun peertube-draw-buffer ()
   "Draw buffer with video entries."
   (interactive)
@@ -188,7 +193,7 @@ Format to thousands (K) or millions (M) if necessary."
 				       peertube-videos))
   (tabulated-list-init-header)
   (tabulated-list-print))
-  
+
 (defun peertube--get-current-video ()
   "Get the currently selected video."
   (aref peertube-videos (1- (line-number-at-pos))))
@@ -202,8 +207,8 @@ Format to thousands (K) or millions (M) if necessary."
 	 (torrent-link (replace-regexp-in-string
 			"https://\\(.*\\)/videos/watch/\\(.*$\\)"
 			(concat "https://\\1/download/torrents/\\2-"
-			res
-			".torrent")
+				res
+				".torrent")
 			url)))
     (message torrent-link)
     (transmission-add torrent-link))
@@ -255,17 +260,20 @@ Format to thousands (K) or millions (M) if necessary."
 					 peertube-sort-methods))))
     (setq peertube-sort-method method))
   (peertube-search peertube-search-term))
-  
+
 (defun peertube-search (query)
   "Search PeerTube for QUERY."
   (interactive "sSearch PeerTube: ")
-  (setq peertube-videos (peertube-query query))
+  (let ((videos (if peertube-disable-nsfw
+		    (cl-remove-if #'null (mapcar 'peertube--remove-nsfw (peertube-query query)))
+		  (peertube-query query))))
+    (setq peertube-videos videos))
   (setq peertube-search-term query)
   (peertube-draw-buffer))
 
 ;; Store metadata for PeerTube videos
 (cl-defstruct (peertube-video (:constructor peertube--create-video)
-			  (:copier nil))
+			      (:copier nil))
   "Metadata for a PeerTube video."
   (title "" :read-only t)
   (account "" :read-only t)
