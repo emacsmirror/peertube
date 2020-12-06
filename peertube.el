@@ -39,24 +39,25 @@
 (defvar peertube-videos '()
   "List of videos displayed in the *peertube* buffer.")
 
-(defvar disable-nsfw nil
-  "Whether to disable NSFW content.")
-
 (defvar peertube-search-term ""
   "Current peertube search term.")
-
-(defvar peertube-sort-methods '(relevance most-recent least-recent)
-  "List of available sorting methods for `peertube'.")
-
-(defvar peertube-video-resolutions '(720 1080 480 360)
-  "List of available resolutions for videos in `peetube'.
-
-The order matters, the first one will be the default choice.
-Note: Not all resolutions are available for att videos.")
 
 (defgroup peertube nil
   "Query PeerTube videos in Emacs."
   :group 'convenience)
+
+(defcustom peertube-disable-nsfw nil
+  "Whether to disable NSFW content."
+  :type 'boolean
+  :group 'peertube)
+
+(defcustom peertube-video-resolutions '(720 1080 480 360)
+  "List of available resolutions for videos in `peetube'.
+
+The order matters, the first one will be the default choice.
+Note: Not all resolutions are available for att videos."
+  :type 'list
+  :group 'peertube)
 
 (defcustom peertube-channel-length 15
   "Length of the creator of the video."
@@ -71,7 +72,7 @@ Note: Not all resolutions are available for att videos.")
 (defcustom peertube-sort-method 'relevance
   "How to sort search results."
   :type 'symbol
-  :options peertube-sort-methods
+  :options '(relevance most-recent least-recent)
   :group 'peertube)
   
 (defface peertube-channel-face
@@ -192,23 +193,6 @@ Format to thousands (K) or millions (M) if necessary."
   "Get the currently selected video."
   (aref peertube-videos (1- (line-number-at-pos))))
 
-(defun peertube-iterate (url resolutions)
-  (when resolutions
-    (let ((torrent-link (replace-regexp-in-string
-			 "https://\\(.*\\)/videos/watch/\\(.*$\\)"
-			 (concat "https://\\1/download/torrents/\\2-"
-				 (car resolutions) ".torrent")
-			 url)))
-      (if (message torrent-link)
-	  t
-	(append torrent-link (peertube-iterate url (nthcdr 1 resolutions)))))))
-
-    
-;; (peertube-iterate "https://peertube.dsmouse.net/videos/watch/670b41d7-71bc-4619-ad9e-947136fa6916" '("1080" "720" "480"))
-    
-
-
-  
 (defun peertube-download-video ()
   "Download the video under the cursor using `transmission-add'."
   (interactive)
@@ -245,9 +229,6 @@ Format to thousands (K) or millions (M) if necessary."
     (progn
       (call-process "curl" nil nil nil url "-o" temp-file)
       (find-file temp-file)
-      ;; (ignore-errors
-      ;; 	(rename-buffer "*peertube-thumbnail*"))
-      ;; (kill-buffer (replace-regexp-in-string ".*/\\(.*$\\)" "\1" temp-file))
       (image-transform-set-scale 4))))
 
 (defun peertube-show-video-info ()
