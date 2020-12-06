@@ -1,4 +1,4 @@
-;;; peertube.el --- Query PeerTube videos in Emacs -*- lexical-binding: t; -*-
+;;; peertube.el --- Query PeerTube videos -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020 yoctocell
 
@@ -34,7 +34,6 @@
 
 (require 'json)
 (require 'cl-lib)
-(require 'cl-seq)
 (require 'transmission)
 (require 'image-mode)
 
