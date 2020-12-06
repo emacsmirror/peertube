@@ -3,11 +3,11 @@
 ;; Copyright (C) 2020 yoctocell
 
 ;; Author: yoctocell <public@yoctocell.xyz>
-;; Version: 0.3.0
+;; Version: 0.3.1
 ;; Keywords: peertube multimedia
 ;; URL: https://git.sr.ht/~yoctocell/peertube
 ;; License: GNU General Public License >= 3
-;; Package-Requires: ((emacs "25.3") (transmission "0.12.1"))
+;; Package-Requires: ((emacs "25.1") (transmission "0.12.1"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
