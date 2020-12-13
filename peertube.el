@@ -199,7 +199,7 @@ Format to thousands (K) or millions (M) if necessary."
 
 (defun peertube--get-current-video ()
   "Get the currently selected video."
-  (aref peertube-videos (1- (line-number-at-pos))))
+  (nth (1- (line-number-at-pos)) peertube-videos))
 
 (defun peertube-download-video ()
   "Download the video under the cursor using `transmission-add'."
