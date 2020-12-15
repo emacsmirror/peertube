@@ -26,4 +26,4 @@
 - \[X\] Preview thumbnail
 - \[X\] Let users specify other fields
 - \[ \] Show more metadata
-- \[ \] Add to MELPA/ELPA
+- \[X\] Add to MELPA/ELPA
