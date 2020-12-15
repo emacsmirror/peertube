@@ -1,4 +1,4 @@
-;;; peertube.el --- Query PeerTube videos -*- lexical-binding: t; -*-
+;;; peertube.el --- Query and download PeerTube videos -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020 yoctocell
 
@@ -59,7 +59,7 @@
   "List of available resolutions for videos in `peertube'.
 
 The order matters, the first one will be the default choice.
-Note: Not all resolutions are available for att videos."
+Note: Not all resolutions are available for all videos."
   :type 'list
   :group 'peertube)
 
@@ -234,10 +234,9 @@ Format to thousands (K) or millions (M) if necessary."
   (interactive)
   (let ((url (peertube-video-thumbnailUrl (peertube--get-current-video)))
 	(temp-file (make-temp-file "thumbnail")))
-    (progn
       (call-process "curl" nil nil nil url "-o" temp-file)
       (find-file temp-file)
-      (image-transform-set-scale 4))))
+      (image-transform-set-scale 4)))
 
 (defun peertube-show-video-info ()
   "Show more information about video under point."
@@ -361,7 +360,7 @@ parsed by `json-read'."
   (switch-to-buffer "*peertube*")
   (unless (eq major-mode 'peertube-mode)
     (peertube-mode)
-    (call-interactively 'peertube-search)))
+    (call-interactively #'peertube-search)))
 
 (provide 'peertube)
 
