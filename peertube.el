@@ -255,7 +255,8 @@ Format to thousands (K) or millions (M) if necessary."
     (with-current-buffer "*peertube-info*"
       (erase-buffer)
       (insert
-       (concat title channel date views duration likes dislikes description)))))
+       (concat title channel date views duration likes dislikes description))))
+  (read-only-mode 1))
 
 (defun peertube-change-sort-method ()
   "Change sorting method used for `peertube' and update the results buffer."
