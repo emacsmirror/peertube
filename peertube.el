@@ -112,6 +112,8 @@ Note: Not all resolutions are available for all videos."
     (define-key map "s" #'peertube-search)
     (define-key map "d" #'peertube-download-video)
     (define-key map "g" #'peertube-draw-buffer)
+    (define-key map "i" #'peertube-show-video-info)
+    (define-key map "t" #'peertube-preview-thumbnail)
     (define-key map "n" #'next-line)
     (define-key map "p" #'previous-line)
     map)
