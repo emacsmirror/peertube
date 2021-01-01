@@ -1,6 +1,6 @@
 ;;; peertube.el --- Query and download PeerTube videos -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020 yoctocell
+;; Copyright (C) 2020-2021 yoctocell
 
 ;; Author: yoctocell <public@yoctocell.xyz>
 ;; URL: https://git.sr.ht/~yoctocell/peertube
